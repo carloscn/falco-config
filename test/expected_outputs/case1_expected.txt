@@ -1,0 +1,24 @@
+预期日志输出示例 - 测试用例1: 敏感文件读取检测
+
+==========================================
+Falco应该检测到以下事件并生成警告日志:
+==========================================
+
+日志格式示例:
+2024-12-15T10:22:33.812791015+0000: Warning Sensitive file opened for reading by non-trusted program (file=/etc/shadow gparent=sudo ggparent=bash gggparent=tmux: evt_type=openat user=root user_uid=0 user_loginuid=1000 process=cat proc_exepath=/usr/bin/cat parent=sudo command=cat /etc/shadow terminal=34826 container_id=host container_name=host)
+
+关键字段说明:
+- 时间戳: 2024-12-15T10:22:33.812791015+0000
+- 优先级: Warning
+- 规则名称: "Sensitive file opened for reading by non-trusted program"
+- file=/etc/shadow (被访问的敏感文件)
+- process=cat (执行读取的进程)
+- user=root (执行用户)
+- evt_type=openat (系统调用类型)
+- command=cat /etc/shadow (完整命令)
+
+验证要点:
+✓ 日志中包含 "Sensitive file opened for reading" 规则名称
+✓ 日志中包含 file=/etc/shadow
+✓ 日志中包含 process=cat (或实际使用的命令)
+✓ 日志中包含时间戳和优先级

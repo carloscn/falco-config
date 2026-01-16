@@ -1,0 +1,27 @@
+预期日志输出示例 - 测试用例2: 系统目录写入检测
+
+==========================================
+Falco应该检测到以下事件并生成警告日志:
+==========================================
+
+日志格式示例:
+2024-12-15T10:25:15.123456789+0000: Warning File below /etc opened for writing (fd.name=/etc/testfile_falco_1234567890 evt_type=openat user=root user_uid=0 process=touch proc_exepath=/usr/bin/touch parent=bash command=touch /etc/testfile_falco_1234567890 container_id=host container_name=host)
+
+关键字段说明:
+- 时间戳: ISO 8601格式
+- 优先级: Warning
+- 规则名称: "File below /etc opened for writing"
+- fd.name=/etc/testfile_falco_* (被写入的文件路径)
+- process=touch (执行写入的进程)
+- evt_type=openat (系统调用类型，可能为open或openat)
+- user=root (执行用户)
+
+验证要点:
+✓ 日志中包含 "File below /etc opened for writing" 或类似规则名称
+✓ 日志中包含 fd.name=/etc/... (写入的文件路径)
+✓ 日志中包含 process=touch (或实际使用的命令)
+✓ 日志中包含写入操作标识
+
+注意:
+- 某些情况下，如果操作被拒绝（权限不足），可能不会触发写入检测
+- 确保测试时使用足够的权限（如root或sudo）
