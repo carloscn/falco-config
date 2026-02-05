@@ -23,7 +23,7 @@ fi
 
 echo ""
 echo "=========================================="
-echo "âœ“ Cleanup completed"
+echo "âœ?Cleanup completed"
 echo "=========================================="
 echo ""
 echo "To rebuild environment, run: ./scripts/setup_docker.sh"

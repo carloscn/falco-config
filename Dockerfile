@@ -22,6 +22,12 @@ RUN apt-get update && apt-get install -y \
     iputils-ping \
     sudo \
     wget \
+    python3 \
+    python3-minimal \
+    netcat-openbsd \
+    strace \
+    auditd \
+    docker.io \
     && rm -rf /var/lib/apt/lists/*
 
 # Create tester user (non-root for privilege escalation tests)
@@ -30,10 +36,11 @@ RUN useradd -m -s /bin/bash tester && \
     mkdir -p /home/tester && \
     chown -R tester:tester /home/tester
 
-# Copy Falco installation and test scripts
+# Copy Falco installation and test scripts (fix CRLF for Windows hosts)
 COPY scripts/install_falco.sh /tmp/install_falco.sh
 COPY scripts/test_falco.sh /tmp/test_falco.sh
-RUN chmod +x /tmp/install_falco.sh /tmp/test_falco.sh && \
+RUN sed -i 's/\r$//' /tmp/install_falco.sh /tmp/test_falco.sh 2>/dev/null || true && \
+    chmod +x /tmp/install_falco.sh /tmp/test_falco.sh && \
     chmod 755 /tmp/install_falco.sh /tmp/test_falco.sh && \
     chown root:root /tmp/install_falco.sh /tmp/test_falco.sh && \
     chmod 4755 /tmp/install_falco.sh  # Setuid so tester can run with sudo

@@ -175,8 +175,16 @@ In the Falco terminal, you should see detected anomaly behavior logs.
    tail -f /var/log/falco.log
    ```
 
+## IDPS Tests (30 SYS-* cases)
+
+```powershell
+# Run on host (Docker running, Falco started)
+.\test\test_cases\collect_logs_host.ps1
+```
+
+See [test/README.md](test/README.md) and [IDIADA_COMPLIANCE_FALCO_LOGS.md](test/test_cases/IDIADA_COMPLIANCE_FALCO_LOGS.md).
+
 ## Next Steps
 
-- Read [README.md](README.md) for detailed documentation
-- Check [test/README.md](test/README.md) for test case details
-- See [BEST_PRACTICES.md](BEST_PRACTICES.md) for best practices
+- [README.md](README.md) - Project overview
+- [test/README.md](test/README.md) - Test cases

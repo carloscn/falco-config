@@ -1,19 +1,20 @@
-# Docker相关
-falco-config/
+# Docker
 falco-logs/
 *.log
+# Keep IDIADA compliance logs
+!test/test_cases/IDIADA_FALCO_LOGS/*.log
 
-# 系统文件
+# System files
 .DS_Store
 Thumbs.db
 
-# 编辑器
+# Editor
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# 备份文件
+# Backup files
 *.backup
 *.bak

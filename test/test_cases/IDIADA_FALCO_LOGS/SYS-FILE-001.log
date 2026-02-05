@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-FILE-001
+# Collected: 2026-02-05T16:09:55
+# Test script: SYS-FILE-001.sh
+# ----------------------------------------
+15:09:53.087795616: Notice IDPS SYS-PROC-004 Privilege escalation attempt | evt_type=execve user=root user_uid=0 process=sudo proc_exepath=/usr/bin/sudo parent=bash command=sudo touch /etc/test_falco_sys_file_001_1770304193 container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:09:53.098264920: Warning IDPS SYS-FILE-001 Write to /etc | file=/etc/test_falco_sys_file_001_1770304193 evt_type=openat user=root user_uid=0 process=touch proc_exepath=/usr/bin/touch parent=sudo command=touch /etc/test_falco_sys_file_001_1770304193 container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:09:53.099937778: Notice IDPS SYS-PROC-004 Privilege escalation attempt | evt_type=execve user=root user_uid=0 process=sudo proc_exepath=/usr/bin/sudo parent=bash command=sudo rm -f /etc/test_falco_sys_file_001_1770304193 container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

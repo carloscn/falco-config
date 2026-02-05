@@ -1,0 +1,7 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-LOG-003
+# Collected: 2026-02-05T16:12:14
+# Test script: SYS-LOG-003.sh
+# ----------------------------------------
+
+15:12:11.354472591: Warning IDPS SYS-LOG-003 Kill signal sent | evt_type=kill target_pid=bash user=<NA> user_uid=1000 process=bash proc_exepath=/usr/bin/bash parent=<NA> command=bash SYS-LOG-003.sh container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

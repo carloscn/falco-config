@@ -28,7 +28,7 @@ if [ -f "$CONTAINER_PLUGIN_CONFIG" ]; then
     rm -f "$CONTAINER_PLUGIN_CONFIG"
     rm -f "${CONTAINER_PLUGIN_CONFIG}.backup"
     rm -f "${CONTAINER_PLUGIN_CONFIG}.disabled"
-    echo "✓ Deleted container plugin config file"
+    echo "�?Deleted container plugin config file"
     echo ""
 fi
 
@@ -50,7 +50,7 @@ echo "Running: falco --dry-run -c /etc/falco/falco.yaml"
 echo ""
 if falco --dry-run -c /etc/falco/falco.yaml 2>&1 | head -10; then
     echo ""
-    echo "✓✓✓ Test passed! Falco can run normally after deleting container plugin config!"
+    echo "✓✓�?Test passed! Falco can run normally after deleting container plugin config!"
     echo ""
     echo "You can now use Falco directly:"
     echo "  falco"
@@ -58,7 +58,7 @@ if falco --dry-run -c /etc/falco/falco.yaml 2>&1 | head -10; then
     echo "LD_PRELOAD not needed (if there are still symbol issues, use method 2)"
     TEST1_PASSED=true
 else
-    echo "✗ Test failed, may need LD_PRELOAD (continue to test method 2)"
+    echo "�?Test failed, may need LD_PRELOAD (continue to test method 2)"
     TEST1_PASSED=false
 fi
 
@@ -73,7 +73,7 @@ if [ "$TEST1_PASSED" != "true" ]; then
     for path in /lib/x86_64-linux-gnu/libresolv.so.2 /lib64/libresolv.so.2 /usr/lib/x86_64-linux-gnu/libresolv.so.2; do
         if [ -f "$path" ]; then
             LIBRESOLV_PATH="$path"
-            echo "✓ Found: $LIBRESOLV_PATH"
+            echo "�?Found: $LIBRESOLV_PATH"
             break
         fi
     done
@@ -92,7 +92,7 @@ if [ "$TEST1_PASSED" != "true" ]; then
     echo ""
     if LD_PRELOAD="$LIBRESOLV_PATH" falco --dry-run -c /etc/falco/falco.yaml 2>&1 | head -10; then
         echo ""
-        echo "✓✓✓ Test passed! LD_PRELOAD method works!"
+        echo "✓✓�?Test passed! LD_PRELOAD method works!"
         echo ""
         echo "You can now use Falco:"
         echo "  Method 1: Export environment variable"
@@ -106,7 +106,7 @@ if [ "$TEST1_PASSED" != "true" ]; then
         echo "    /usr/local/bin/falco-wrapper.sh"
     else
         echo ""
-        echo "✗ Test still failed, may need other solutions"
+        echo "�?Test still failed, may need other solutions"
         echo ""
         echo "Please check:"
         echo "  1. Is Falco correctly installed"
@@ -148,12 +148,12 @@ NEW_LINES=$((AFTER_LINES - BEFORE_LINES))
 
 echo ""
 if [ "$NEW_LINES" -gt 0 ]; then
-    echo "✓✓✓ Detected $NEW_LINES new log lines!"
+    echo "✓✓�?Detected $NEW_LINES new log lines!"
     echo ""
     echo "Latest log content:"
     tail -n "$NEW_LINES" "$LOG_FILE"
 else
-    echo "⚠ No new logs detected"
+    echo "�?No new logs detected"
     echo ""
     echo "Possible reasons:"
     echo "  1. Falco rules not triggered (may need to adjust rules)"

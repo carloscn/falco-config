@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-PHY-001
+# Collected: 2026-02-05T16:10:45
+# Test script: SYS-PHY-001.sh
+# ----------------------------------------
+15:10:40.081991800: Notice IDPS SYS-PHY Physical interface test | evt_type=execve user=<NA> user_uid=1000 process=bash proc_exepath=/usr/bin/bash parent=<NA> command=bash -c cd /opt/falco-test/idps && bash SYS-PHY-001.sh container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:10:40.088343762: Notice IDPS SYS-PHY Physical interface test | evt_type=execve user=<NA> user_uid=1000 process=bash proc_exepath=/usr/bin/bash parent=<NA> command=bash SYS-PHY-001.sh container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

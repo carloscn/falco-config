@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-RES-001
+# Collected: 2026-02-05T16:11:16
+# Test script: SYS-RES-001.sh
+# ----------------------------------------
+15:11:05.773711866: Warning IDPS SYS-RES-001 CPU abuse process spawned | evt_type=execve user=<NA> user_uid=1000 process=python3 proc_exepath=/usr/bin/python3.10 parent=bash command=python3 -c  import time end = time.time() + 2 while time.time() < end:     pass  container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:11:07.789748965: Warning IDPS SYS-RES-001 CPU abuse process spawned | evt_type=execve user=<NA> user_uid=1000 process=yes proc_exepath=/usr/bin/yes parent=bash command=yes container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:11:07.791369365: Warning IDPS SYS-RES-003 Mass process spawn | evt_type=execve user=<NA> user_uid=1000 process=sleep proc_exepath=/usr/bin/sleep parent=bash command=sleep 2 container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

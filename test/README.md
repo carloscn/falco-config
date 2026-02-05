@@ -496,18 +496,27 @@ See [TESTING_NOTES.md](TESTING_NOTES.md) for detailed information about:
 
 ## System-Level IDPS Test Scripts (R155 Aligned)
 
-Test scripts aligned with **System-Level IDPS Detection Test Cases For Embedded Linux v1.1** are in `test/idps/`:
+Test scripts in `test/test_cases/` aligned with **System-Level IDPS Detection Test Cases For Embedded Linux v1.1**:
 
-- **30 test scripts** matching document case IDs (SYS-PROC-001, SYS-FILE-001, etc.)
-- **TEST_METHODS.md** – detailed test method steps for each case
-- **README.md** – mapping and usage
+| Script | Document ID | Category |
+|--------|--------------|----------|
+| SYS-PROC-001.sh ~ 005 | SYS-PROC-* | Abnormal Process, Privilege Escalation |
+| SYS-FILE-001.sh ~ 004 | SYS-FILE-* | /etc, system binaries, PAM, systemd |
+| SYS-KERN-001.sh ~ 004 | SYS-KERN-* | Kernel module, ptrace, capset, mount |
+| SYS-NET-001.sh ~ 004 | SYS-NET-* | Outbound, low port, SOCK_RAW, AF_CAN |
+| SYS-CONT-001.sh ~ 004 | SYS-CONT-* | Container path, privileged, host mount |
+| SYS-RES-001.sh ~ 003 | SYS-RES-* | CPU/memory, hidden process, fork bomb |
+| SYS-LOG-001.sh ~ 003 | SYS-LOG-* | Log tampering, audit rules |
+| SYS-PHY-001.sh ~ 003 | SYS-PHY-* | USB storage, HID, generic USB |
 
+**Usage** (inside Docker):
 ```bash
 cd /opt/falco-test
-bash idps/SYS-PROC-001.sh   # Example: unexpected uid/gid
-bash idps/SYS-FILE-001.sh   # Example: writes to /etc
-# Run all: for f in idps/SYS-*.sh; do bash "$f"; done
+bash test_cases/SYS-PROC-001.sh
+bash test_cases/run_all_idps_tests.sh   # Run all 30
 ```
+
+**IDIADA compliance**: `test/test_cases/IDIADA_FALCO_LOGS/` contains real Falco logs for all 30 cases; `collect_logs_host.ps1` to re-collect. See [IDIADA_COMPLIANCE_FALCO_LOGS.md](test_cases/IDIADA_COMPLIANCE_FALCO_LOGS.md), [FALCO_DETECTION_LOG_SAMPLES.md](test_cases/FALCO_DETECTION_LOG_SAMPLES.md).
 
 ---
 

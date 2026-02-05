@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-RES-002
+# Collected: 2026-02-05T16:11:20
+# Test script: SYS-RES-002.sh
+# ----------------------------------------
+15:11:12.674824278: Critical Executing binary not part of base image | proc_exe=/tmp/hidden_1770304277 proc_sname=bash gparent=<NA> proc_exe_ino_ctime=1770304277805465120 proc_exe_ino_mtime=1770304277805465120 proc_exe_ino_ctime_duration_proc_start=18446744068578655362 proc_cwd=/opt/falco-test/idps/ container_start_ts=1770301134833032930 evt_type=execve user=<NA> user_uid=1000 user_loginuid=-1 process=hidden_17703042 proc_exepath=/tmp/hidden_1770304277 parent=bash command=hidden_17703042 60 terminal=0 exe_flags=EXE_WRITABLE|EXE_UPPER_LAYER container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:11:12.675082697: Warning IDPS SYS-RES-003 Mass process spawn | evt_type=execve user=<NA> user_uid=1000 process=sleep proc_exepath=/usr/bin/sleep parent=bash command=sleep 1 container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

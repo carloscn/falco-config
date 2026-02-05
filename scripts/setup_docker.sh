@@ -46,7 +46,7 @@ sleep 3
 
 # Check container status
 if docker ps | grep -q falco-test-ubuntu; then
-    echo "âœ“ Container started successfully"
+    echo "âœ?Container started successfully"
     echo ""
     echo "=========================================="
     echo "Next steps:"
@@ -55,6 +55,6 @@ if docker ps | grep -q falco-test-ubuntu; then
     echo "3. Or use: docker-compose exec falco-test bash"
     echo "=========================================="
 else
-    echo "âœ— Container startup failed, please check logs: docker-compose logs"
+    echo "âœ?Container startup failed, please check logs: docker-compose logs"
     exit 1
 fi

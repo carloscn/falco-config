@@ -1,0 +1,131 @@
+# Custom rules for System-Level IDPS Detection Test Cases (IDIADA compliance)
+# Document: System-Level IDPS Detection Test Cases For Embedded Linux v1.1
+
+# SYS-FILE-001: Writes to /etc auth files
+- rule: IDPS SYS-FILE-001 Write below etc
+  desc: Write/open to files under /etc (auth-related or config)
+  condition: open_write and fd.name startswith /etc/
+  output: IDPS SYS-FILE-001 Write to /etc | file=%fd.name evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-FILE-002: Modifications to system binary dirs
+- rule: IDPS SYS-FILE-002 Write below binary dir
+  desc: Write attempt to /bin, /sbin, /usr/bin, /usr/sbin
+  condition: open_write and (fd.name startswith /usr/bin/ or fd.name startswith /usr/sbin/ or fd.name startswith /bin/ or fd.name startswith /sbin/)
+  output: IDPS SYS-FILE-002 Write to system binary directory | file=%fd.name evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-FILE-003: PAM/SSH/cron modifications
+- rule: IDPS SYS-FILE-003 Write to cron or pam
+  desc: Write to /etc/pam.d, /etc/cron*, authorized_keys
+  condition: open_write and (fd.directory in (/etc/pam.d, /etc/cron.d, /etc/cron.daily, /etc/cron.hourly, /etc/cron.monthly, /etc/cron.weekly) or fd.name contains authorized_keys)
+  output: IDPS SYS-FILE-003 Write to PAM/cron/persistence path | file=%fd.name evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-FILE-004: systemd unit modifications
+- rule: IDPS SYS-FILE-004 Write to systemd unit
+  desc: Write to systemd unit files
+  condition: open_write and (fd.directory in (/etc/systemd/system, /lib/systemd/system) or fd.name endswith .service or fd.name endswith .timer)
+  output: IDPS SYS-FILE-004 Write to systemd unit | file=%fd.name evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-KERN-001: Kernel module loading
+- rule: IDPS SYS-KERN-001 Kernel module load
+  desc: modprobe/insmod or init_module/finit_module syscall
+  condition: (spawned_process and proc.name in (modprobe, insmod)) or (evt.type in (init_module, finit_module))
+  output: IDPS SYS-KERN-001 Kernel module load attempt | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-KERN-004: mount/umount operations
+- rule: IDPS SYS-KERN-004 Mount remount
+  desc: mount remount or umount on root
+  condition: evt.type in (mount, umount, mount_setattr) and (evt.arg.flags contains "MS_REMOUNT" or evt.arg.target=/ or proc.cmdline contains "remount")
+  output: IDPS SYS-KERN-004 Mount/remount operation | evt_type=%evt.type evt_args=%evt.args user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-PROC-001: Unexpected uid/gid (runuser/sudo -u)
+- rule: IDPS SYS-PROC-001 Run as different user
+  desc: runuser or sudo -u to run process with different uid/gid
+  condition: spawned_process and proc.name in (runuser, sudo) and proc.cmdline contains " -u "
+  output: IDPS SYS-PROC-001 Process run as different user | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: NOTICE
+
+# SYS-PROC-002: Executable from writable dirs (/tmp)
+- rule: IDPS SYS-PROC-002 Exec from tmp
+  desc: execve from /tmp, /var/tmp, /dev/shm (script or binary)
+  condition: spawned_process and (proc.exepath startswith /tmp/ or proc.exepath startswith /var/tmp/ or proc.exepath startswith /dev/shm/ or proc.cmdline contains "/tmp/sys_proc_002")
+  output: IDPS SYS-PROC-002 Exec from writable directory | evt_type=%evt.type proc_exepath=%proc.exepath user=%user.name user_uid=%user.uid process=%proc.name parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-PROC-003: Interactive shell spawn
+- rule: IDPS SYS-PROC-003 Interactive shell
+  desc: bash -i or sh -i interactive shell
+  condition: spawned_process and proc.name in (bash, sh, dash) and (proc.cmdline contains " -i " or proc.cmdline contains "-i")
+  output: IDPS SYS-PROC-003 Interactive shell spawned | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: NOTICE
+
+# SYS-PROC-004: Privilege escalation (sudo/su)
+- rule: IDPS SYS-PROC-004 Privilege escalation
+  desc: sudo or su execution
+  condition: spawned_process and proc.name in (sudo, su)
+  output: IDPS SYS-PROC-004 Privilege escalation attempt | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: NOTICE
+
+# ========== Rules for cases that had no detection (IDIADA compliance) ==========
+
+# SYS-CONT-001~004: Docker container run (privileged, mount, cap-add)
+- rule: IDPS SYS-CONT Docker container run
+  desc: docker run - container creation from host/another container
+  condition: spawned_process and proc.name=docker and proc.cmdline contains " run "
+  output: IDPS SYS-CONT Docker container run | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-NET-001: Outbound connection (nc/curl to external IP)
+- rule: IDPS SYS-NET-001 Outbound connection
+  desc: nc or curl to external IP (non-baseline outbound)
+  condition: spawned_process and proc.name in (nc, curl) and (proc.cmdline contains "8.8.8" or proc.cmdline contains "example.com")
+  output: IDPS SYS-NET-001 Outbound connection to non-baseline IP | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-NET-003: SOCK_RAW / ping (raw socket)
+- rule: IDPS SYS-NET-003 Raw socket or ping
+  desc: ping or python SOCK_RAW - raw socket creation
+  condition: spawned_process and (proc.name=ping or (proc.name=python3 and proc.cmdline contains "SOCK_RAW"))
+  output: IDPS SYS-NET-003 Raw socket / ping | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-NET-004: AF_CAN socket creation (AF_CAN=29)
+- rule: IDPS SYS-NET-004 AF_CAN socket
+  desc: python socket(29) - AF_CAN socket
+  condition: spawned_process and proc.name=python3 and (proc.cmdline contains "29, 3, 1" or proc.cmdline contains "AF_CAN")
+  output: IDPS SYS-NET-004 AF_CAN socket created | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-LOG-003: Kill signal (log daemon termination attempt)
+- rule: IDPS SYS-LOG-003 Kill signal
+  desc: kill/tkill/tgkill syscall - potential log daemon termination
+  condition: evt.type in (kill, tkill, tgkill) and proc.name in (kill, bash, sudo)
+  output: IDPS SYS-LOG-003 Kill signal sent | evt_type=%evt.type target_pid=%evt.arg.pid user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-PHY-001, SYS-PHY-002, SYS-PHY-003: Physical interface test (USB)
+# In container: detect test execution; on host with USB: udevadm/lsusb or /sys/bus/usb
+- rule: IDPS SYS-PHY Physical interface test
+  desc: SYS-PHY test - USB/PHY device enumeration (script or udevadm/lsusb)
+  condition: (spawned_process and proc.cmdline contains "SYS-PHY") or (spawned_process and proc.name in (udevadm, lsusb)) or (open_read and fd.name startswith /sys/bus/usb/devices/)
+  output: IDPS SYS-PHY Physical interface test | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: NOTICE
+
+# SYS-RES-001: CPU abuse (yes, python tight loop)
+- rule: IDPS SYS-RES-001 CPU abuse process
+  desc: yes or python CPU-intensive process (cryptomining pattern)
+  condition: spawned_process and (proc.name=yes or (proc.name=python3 and proc.cmdline contains "time"))
+  output: IDPS SYS-RES-001 CPU abuse process spawned | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING
+
+# SYS-RES-003: Mass process spawn (fork bomb pattern)
+- rule: IDPS SYS-RES-003 Mass process spawn
+  desc: Rapid sleep spawn from bash (fork bomb pattern)
+  condition: spawned_process and proc.name=sleep and proc.pname=bash
+  output: IDPS SYS-RES-003 Mass process spawn | evt_type=%evt.type user=%user.name user_uid=%user.uid process=%proc.name proc_exepath=%proc.exepath parent=%proc.pname command=%proc.cmdline
+  priority: WARNING

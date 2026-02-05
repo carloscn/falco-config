@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-PROC-003
+# Collected: 2026-02-05T16:11:00
+# Test script: SYS-PROC-003.sh
+# ----------------------------------------
+15:10:54.837873706: Notice IDPS SYS-PROC-003 Interactive shell spawned | evt_type=execve user=<NA> user_uid=1000 process=bash proc_exepath=/usr/bin/bash parent=timeout command=bash -i -c echo interactive container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

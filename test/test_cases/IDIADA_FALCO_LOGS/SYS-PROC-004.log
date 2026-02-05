@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-PROC-004
+# Collected: 2026-02-05T16:11:06
+# Test script: SYS-PROC-004.sh
+# ----------------------------------------
+15:10:57.818662287: Notice IDPS SYS-PROC-004 Privilege escalation attempt | evt_type=execve user=root user_uid=0 process=sudo proc_exepath=/usr/bin/sudo parent=bash command=sudo -n true container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:10:57.839719147: Notice IDPS SYS-PROC-004 Privilege escalation attempt | evt_type=execve user=root user_uid=0 process=su proc_exepath=/usr/bin/su parent=bash command=su -c id root container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:10:58.845996520: Notice IDPS SYS-PROC-004 Privilege escalation attempt | evt_type=execve user=root user_uid=0 process=su proc_exepath=/usr/bin/su parent=bash command=su -c id container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

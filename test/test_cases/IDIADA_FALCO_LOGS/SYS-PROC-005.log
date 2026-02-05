@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-PROC-005
+# Collected: 2026-02-05T16:11:09
+# Test script: SYS-PROC-005.sh
+# ----------------------------------------
+15:11:02.852170970: Critical Executing binary not part of base image | proc_exe=/tmp/unknown_bin_1770304266 proc_sname=bash gparent=<NA> proc_exe_ino_ctime=1770304266295011919 proc_exe_ino_mtime=1770304266295011919 proc_exe_ino_ctime_duration_proc_start=18446744070266009769 proc_cwd=/opt/falco-test/idps/ container_start_ts=1770301134833032930 evt_type=execve user=<NA> user_uid=1000 user_loginuid=-1 process=unknown_bin_177 proc_exepath=/tmp/unknown_bin_1770304266 parent=bash command=unknown_bin_177 terminal=0 exe_flags=EXE_WRITABLE|EXE_UPPER_LAYER container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

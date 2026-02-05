@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-NET-004
+# Collected: 2026-02-05T16:10:41
+# Test script: SYS-NET-004.sh
+# ----------------------------------------
+15:10:36.497931842: Notice IDPS SYS-PROC-004 Privilege escalation attempt | evt_type=execve user=root user_uid=0 process=sudo proc_exepath=/usr/bin/sudo parent=<NA> command=sudo truncate -s 0 /var/log/falco.log container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:10:37.140570974: Warning IDPS SYS-NET-003 Raw socket / ping | evt_type=execve user=<NA> user_uid=1000 process=python3 proc_exepath=/usr/bin/python3.10 parent=bash command=python3 -c  import socket # AF_CAN = 29, SOCK_RAW = 3, CAN_RAW = 1 try:     s = socket.socket(29, 3, 1)  # AF_CAN, SOCK_RAW, CAN_RAW     s.close()     print('AF_CAN socket created') except (OSError, socket.error) as e:     print('AF_CAN socket failed (expected on non-CAN systems):', e)  container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

@@ -6,6 +6,9 @@
 
 set -e
 
+# Avoid interactive prompts during apt/dpkg (critical for Docker non-interactive runs)
+export DEBIAN_FRONTEND=noninteractive
+
 # Check if running as root or with sudo
 if [ "$EUID" -ne 0 ]; then 
     if ! sudo -n true 2>/dev/null; then
@@ -109,13 +112,13 @@ if [ "$INSTALL_METHOD" != "compile" ]; then
     fi
     
     $SUDO_CMD chmod 644 "$KEYRING_PATH"
-    echo "✓ GPG key added and verified"
+    echo "??GPG key added and verified"
     
     # Add Falco repository
     echo "Adding Falco repository..."
     echo "deb [signed-by=/usr/share/keyrings/falco-archive-keyring.gpg] https://download.falco.org/packages/deb stable main" \
         | $SUDO_CMD tee /etc/apt/sources.list.d/falcosecurity.list > /dev/null
-    echo "✓ Repository added"
+    echo "??Repository added"
     
     # Update package list
     echo "Updating package list..."
@@ -173,24 +176,24 @@ if [ "$INSTALL_METHOD" = "compile" ]; then
     make -j$(nproc)
     make install
     
-    echo "✓ Falco compilation and installation completed"
+    echo "??Falco compilation and installation completed"
     
 elif [ "$INSTALL_METHOD" = "latest" ]; then
     echo "Installing latest version of Falco..."
-    $SUDO_CMD apt-get install -y falco
+    $SUDO_CMD apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" falco
     
 elif [ -n "$FALCO_VERSION" ]; then
     echo "Installing specified version: falco=${FALCO_VERSION}..."
-    $SUDO_CMD apt-get install -y falco=${FALCO_VERSION} || {
+    $SUDO_CMD apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" falco=${FALCO_VERSION} || {
         echo "Warning: Specified version installation failed, trying latest stable..."
-        $SUDO_CMD apt-get install -y falco
+        $SUDO_CMD apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" falco
     }
 else
     echo "Installing stable version of Falco..."
-    $SUDO_CMD apt-get install -y falco || {
+    $SUDO_CMD apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" falco || {
         echo "Warning: modern eBPF driver installation failed, trying kernel module driver..."
         export FALCO_DRIVER_CHOICE=kmod
-        $SUDO_CMD apt-get install -y falco
+        $SUDO_CMD apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" falco
     }
 fi
 
@@ -219,16 +222,16 @@ if [ -f "$FALCO_CONFIG" ]; then
             /enabled:/s/enabled:.*/enabled: true/
             /filename:/s|filename:.*|filename: /var/log/falco.log|
         }' "$FALCO_CONFIG"
-        echo "✓ Enabled file_output (output to /var/log/falco.log)"
+        echo "??Enabled file_output (output to /var/log/falco.log)"
     else
         # If file_output doesn't exist, add configuration
         if $SUDO_CMD grep -q "^# \[Stable\] \`file_output\`" "$FALCO_CONFIG"; then
             $SUDO_CMD sed -i '/^# \[Stable\] \`file_output\`/a file_output:\n  enabled: true\n  filename: /var/log/falco.log' "$FALCO_CONFIG"
-            echo "✓ Added file_output configuration"
+            echo "??Added file_output configuration"
         fi
     fi
     
-    echo "✓ Falco configuration file: $FALCO_CONFIG"
+    echo "??Falco configuration file: $FALCO_CONFIG"
 else
     echo "Warning: Falco configuration file does not exist"
 fi
@@ -239,7 +242,7 @@ if [ ! -f "$LOCAL_RULES" ]; then
     $SUDO_CMD touch "$LOCAL_RULES"
     echo "# Custom Falco rules" | $SUDO_CMD tee "$LOCAL_RULES" > /dev/null
     echo "# Add custom rules here, will not be overwritten by Falco upgrades" | $SUDO_CMD tee -a "$LOCAL_RULES" > /dev/null
-    echo "✓ Created local rules file: $LOCAL_RULES"
+    echo "??Created local rules file: $LOCAL_RULES"
 fi
 
 # Ensure load_plugins is empty (don't load any plugins, avoid container plugin issues)
@@ -247,7 +250,7 @@ FALCO_MAIN_CONFIG="/etc/falco/falco.yaml"
 if [ -f "$FALCO_MAIN_CONFIG" ]; then
     if $SUDO_CMD grep -q "^load_plugins:" "$FALCO_MAIN_CONFIG"; then
         $SUDO_CMD sed -i 's/^load_plugins:.*/load_plugins: []/' "$FALCO_MAIN_CONFIG"
-        echo "✓ Ensured load_plugins is empty list (no plugins loaded)"
+        echo "??Ensured load_plugins is empty list (no plugins loaded)"
     fi
 fi
 
@@ -262,7 +265,7 @@ if [ -f "$CONTAINER_PLUGIN_CONFIG" ]; then
         $SUDO_CMD cp "$CONTAINER_PLUGIN_CONFIG" "${CONTAINER_PLUGIN_CONFIG}.backup" 2>/dev/null || true
     fi
     $SUDO_CMD rm -f "$CONTAINER_PLUGIN_CONFIG"
-    echo "✓ Deleted container plugin config file (avoid conflict with built-in plugin)"
+    echo "??Deleted container plugin config file (avoid conflict with built-in plugin)"
 fi
 
 # Also delete any existing backup files
@@ -308,7 +311,7 @@ export LD_PRELOAD="$LIBRESOLV_PATH"
 exec /usr/bin/falco "\$@"
 EOF
     $SUDO_CMD chmod +x "$FALCO_WRAPPER"
-    echo "✓ Created Falco wrapper script: $FALCO_WRAPPER"
+    echo "??Created Falco wrapper script: $FALCO_WRAPPER"
     
     # Add to tester user's .bashrc (optional)
     if [ -f /home/tester/.bashrc ]; then
@@ -316,7 +319,7 @@ EOF
             echo "" >> /home/tester/.bashrc
             echo "# Falco LD_PRELOAD configuration (for container plugin symbol issues)" >> /home/tester/.bashrc
             echo "export LD_PRELOAD=\"$LIBRESOLV_PATH\"" >> /home/tester/.bashrc
-            echo "✓ Added to .bashrc"
+            echo "??Added to .bashrc"
         fi
     fi
     

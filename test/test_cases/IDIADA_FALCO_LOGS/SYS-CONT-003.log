@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-CONT-003
+# Collected: 2026-02-05T16:09:49
+# Test script: SYS-CONT-003.sh
+# ----------------------------------------
+15:09:47.264091998: Warning IDPS SYS-CONT Docker container run | evt_type=execve user=<NA> user_uid=1000 process=docker proc_exepath=/usr/bin/docker parent=bash command=docker run --rm -v /etc:/host-etc alpine ls /host-etc container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

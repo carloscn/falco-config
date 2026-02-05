@@ -31,8 +31,10 @@ services:
     stdin_open: true
     tty: true
     # Use LD_PRELOAD to resolve container plugin symbol issues
+    # DOCKER_HOST for SYS-CONT-* tests (socket mounted at /host/var/run/docker.sock)
     environment:
       - LD_PRELOAD=/lib/x86_64-linux-gnu/libresolv.so.2
+      - DOCKER_HOST=unix:///host/var/run/docker.sock
     # Run as tester user (non-root for privilege escalation tests)
     user: tester
     command: /bin/bash

@@ -1,38 +1,33 @@
 # Falco IDPS Research Project
 
-This project is for Falco Intrusion Detection and Prevention System (IDPS) research and experimentation in Ubuntu 22.04 Docker environment.
+Falco IDPS research and experimentation on Ubuntu 22.04 Docker. Test cases aligned with UN R155 and System-Level IDPS specification.
 
 ## Project Structure
 
 ```
 falco-config/
-├── Dockerfile                 # Ubuntu 22.04 container image definition
-├── docker-compose.yml         # Docker Compose configuration
+├── Dockerfile                 # Ubuntu 22.04 container image
+├── docker-compose.yml         # Docker Compose config
 ├── scripts/                   # Automation scripts
-│   ├── setup_docker.sh       # Docker environment setup script
-│   ├── install_falco.sh      # Falco installation script
+│   ├── setup_docker.sh        # Build and start Docker
+│   ├── install_falco.sh      # Falco installation
 │   ├── test_falco.sh         # Falco test script
-│   └── cleanup.sh            # Cleanup Docker containers and resources
-├── test/                      # Test cases directory
-│   ├── README.md             # Test documentation
-│   ├── cases/                # Test case scripts
-│   │   ├── case1_sensitive_file_opening.sh
-│   │   ├── case2_writing_etc.sh
-│   │   ├── case3_network_port_scan.sh
-│   │   ├── case4_privilege_escalation.sh
-│   │   ├── case5_suspicious_process.sh
-│   │   ├── case6_file_permission_modification.sh
-│   │   ├── case7_reverse_shell.sh
-│   │   ├── case8_system_file_modification.sh
-│   │   ├── case9_encoded_command_execution.sh
-│   │   ├── case10_network_connection_anomaly.sh
-│   │   ├── case11_process_injection.sh
-│   │   └── case12_mass_file_access.sh
-│   └── expected_outputs/     # Expected output examples
-│       ├── case1_expected.txt
-│       └── case2_expected.txt
-├── BEST_PRACTICES.md         # Falco best practices and log format guide
-└── README.md                 # This file
+│   └── cleanup.sh            # Cleanup containers
+├── falco-config/              # Falco config (mounted to /etc/falco)
+│   └── falco_rules.local.yaml # Custom rules (IDPS 30 cases)
+├── docs/                      # Documentation
+│   └── System-Level-IDPS-v1.1.md  # IDPS test spec (R155)
+├── test/                      # Test cases
+│   ├── cases/                 # Generic tests case1-12
+│   ├── test_cases/            # System-Level IDPS (SYS-* 30)
+│   │   ├── SYS-*.sh           # Test scripts
+│   │   ├── run_all_idps_tests.sh
+│   │   ├── collect_logs_host.ps1   # Collect Falco logs (IDIADA)
+│   │   ├── IDIADA_FALCO_LOGS/      # Real Falco logs per case
+│   │   └── IDIADA_COMPLIANCE_FALCO_LOGS.md
+│   └── expected_outputs/
+├── QUICKSTART.md              # Quick start
+└── README.md                  # This file
 ```
 
 ## Quick Start
@@ -257,17 +252,11 @@ To stop and remove containers:
 ./scripts/cleanup.sh
 ```
 
-## Best Practices
+## Documentation
 
-See [BEST_PRACTICES.md](BEST_PRACTICES.md) for:
-- Falco rule customization
-- Log format and parsing
-- Performance optimization
-- Integration with SIEM systems
-
-## Test Cases
-
-See [test/README.md](test/README.md) for detailed test case documentation.
+- [docs/System-Level-IDPS-v1.1.md](docs/System-Level-IDPS-v1.1.md) - IDPS test spec (R155)
+- [test/README.md](test/README.md) - Test cases (case1-12 + SYS-* 30)
+- [test/test_cases/IDIADA_COMPLIANCE_FALCO_LOGS.md](test/test_cases/IDIADA_COMPLIANCE_FALCO_LOGS.md) - IDIADA compliance
 
 ## License
 

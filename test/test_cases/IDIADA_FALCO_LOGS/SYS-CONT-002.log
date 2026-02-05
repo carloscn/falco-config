@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-CONT-002
+# Collected: 2026-02-05T16:09:46
+# Test script: SYS-CONT-002.sh
+# ----------------------------------------
+15:09:43.742327179: Notice IDPS SYS-PROC-004 Privilege escalation attempt | evt_type=execve user=root user_uid=0 process=sudo proc_exepath=/usr/bin/sudo parent=runc command=sudo truncate -s 0 /var/log/falco.log container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:09:44.377809489: Warning IDPS SYS-CONT Docker container run | evt_type=execve user=<NA> user_uid=1000 process=docker proc_exepath=/usr/bin/docker parent=bash command=docker run --rm --privileged alpine id container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>

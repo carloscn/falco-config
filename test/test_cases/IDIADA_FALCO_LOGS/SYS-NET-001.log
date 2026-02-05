@@ -1,0 +1,6 @@
+﻿# IDIADA Compliance - Real Falco Detection Log
+# Case: SYS-NET-001
+# Collected: 2026-02-05T16:10:31
+# Test script: SYS-NET-001.sh
+# ----------------------------------------
+15:10:27.031866856: Warning IDPS SYS-NET-001 Outbound connection to non-baseline IP | evt_type=execve user=<NA> user_uid=1000 process=nc proc_exepath=/usr/bin/nc.openbsd parent=bash command=nc -zv 8.8.8.8 53 container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA> 15:10:27.053758339: Warning IDPS SYS-NET-001 Outbound connection to non-baseline IP | evt_type=execve user=<NA> user_uid=1000 process=curl proc_exepath=/usr/bin/curl parent=bash command=curl -s --connect-timeout 2 https://example.com container_id=091f20f8d4bf container_name=<NA> container_image_repository=<NA> container_image_tag=<NA> k8s_pod_name=<NA> k8s_ns_name=<NA>
