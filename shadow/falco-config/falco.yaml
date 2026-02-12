@@ -1,0 +1,9 @@
+rules_files:
+  - /etc/falco/falco_rules.yaml
+  - /etc/falco/falco_rules.local.yaml
+load_plugins: []
+file_output:
+  enabled: true
+  filename: /var/log/falco.log
+stdout_output:
+  enabled: true

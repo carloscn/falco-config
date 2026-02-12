@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  falco-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: falco-test-ubuntu
+    privileged: true
+    volumes:
+      # Mount system tracing information
+      - /sys/kernel/tracing:/sys/kernel/tracing:ro
+      - /sys/kernel/debug:/sys/kernel/debug:ro
+      # Mount process information
+      - /proc:/host/proc:ro
+      # Docker socket (if monitoring Docker containers)
+      - /var/run/docker.sock:/host/var/run/docker.sock:ro
+      # System configuration (read-only)
+      - /etc:/host/etc:ro
+      # Mount Falco configuration and log directories
+      - ./falco-config:/etc/falco
+      - ./falco-logs:/var/log/falco
+      # Mount test cases directory
+      - ./test:/opt/falco-test:ro
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    network_mode: "host"
+    stdin_open: true
+    tty: true
+    # Use LD_PRELOAD to resolve container plugin symbol issues
+    # DOCKER_HOST for SYS-CONT-* tests (socket mounted at /host/var/run/docker.sock)
+    environment:
+      - LD_PRELOAD=/lib/x86_64-linux-gnu/libresolv.so.2
+      - DOCKER_HOST=unix:///host/var/run/docker.sock
+    # Run as tester user (non-root for privilege escalation tests)
+    user: tester
+    command: /bin/bash
