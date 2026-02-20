@@ -3,13 +3,53 @@
 # Environment Setup Script for Falco Cross-Compilation
 # Source this file before running manual commands:
 #   source env.sh
+#
+# Configuration is loaded from build.cfg
 
-# Sysroot
-export SYSROOT="/opt/ti-processor-sdk-linux-adas-j721e-evm-09_02_00_05/linux-devkit/sysroots/aarch64-oe-linux"
+# Script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="${SCRIPT_DIR}/build.cfg"
 
-# Cross-compiler
-export CROSS_PREFIX="/opt/cross-compile/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu"
-export CROSS_TRIPLE="aarch64-none-linux-gnu"
+# Load configuration from build.cfg
+if [[ -f "${CONFIG_FILE}" ]]; then
+    while IFS='=' read -r key value; do
+        # Skip comments and empty lines
+        [[ "$key" =~ ^#.*$ ]] && continue
+        [[ -z "$key" ]] && continue
+        # Remove leading/trailing whitespace and quotes
+        key=$(echo "$key" | xargs)
+        value=$(echo "$value" | xargs | sed 's/^["'\'']//;s/["'\'']$//')
+        # Export the variable
+        if [[ -n "$key" && -n "$value" ]]; then
+            export "$key"="$value"
+        fi
+    done < "${CONFIG_FILE}"
+else
+    echo "ERROR: Configuration file not found: ${CONFIG_FILE}"
+    echo "Please create build.cfg with SYSROOT and CROSS_COMPILE_PREFIX settings."
+    return 1
+fi
+
+# Validate required configuration
+if [[ -z "${SYSROOT}" ]]; then
+    echo "ERROR: SYSROOT is not configured in build.cfg"
+    return 1
+fi
+
+if [[ -z "${CROSS_COMPILE_PREFIX}" ]]; then
+    echo "ERROR: CROSS_COMPILE_PREFIX is not configured in build.cfg"
+    return 1
+fi
+
+if [[ -z "${CROSS_COMPILE_TRIPLE}" ]]; then
+    echo "ERROR: CROSS_COMPILE_TRIPLE is not configured in build.cfg"
+    return 1
+fi
+
+# Export with standardized names (for toolchain.cmake compatibility)
+export SYSROOT
+export CROSS_PREFIX="${CROSS_COMPILE_PREFIX}"
+export CROSS_TRIPLE="${CROSS_COMPILE_TRIPLE}"
 
 # Tools
 export CC="${CROSS_PREFIX}/bin/${CROSS_TRIPLE}-gcc"
@@ -25,8 +65,7 @@ export OBJDUMP="${CROSS_PREFIX}/bin/${CROSS_TRIPLE}-objdump"
 # Add cross-compiler to PATH
 export PATH="${CROSS_PREFIX}/bin:${PATH}"
 
-# Script directory and paths
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Install directory
 export INSTALL_DIR="${SCRIPT_DIR}/install"
 
 # Compiler flags
@@ -39,6 +78,7 @@ export PKG_CONFIG_PATH="${SYSROOT}/usr/lib/pkgconfig:${SYSROOT}/usr/share/pkgcon
 export PKG_CONFIG_SYSROOT_DIR="${SYSROOT}"
 
 echo "Cross-compilation environment configured for ${CROSS_TRIPLE}"
+echo "  Config:  ${CONFIG_FILE}"
 echo "  SYSROOT: ${SYSROOT}"
-echo "  CC: ${CC}"
-echo "  CXX: ${CXX}"
+echo "  CC:      ${CC}"
+echo "  CXX:     ${CXX}"

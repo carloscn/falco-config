@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Falco Cross-Compilation Build Script
-# Target: TI J721E (aarch64)
+# Target: aarch64
 # 
 # Usage: ./build_falco.sh [clean|configure|build|install|all]
 #   clean     - Clean all build artifacts
@@ -25,11 +25,45 @@ BUILD_DIR="${SCRIPT_DIR}/build"
 INSTALL_DIR="${SCRIPT_DIR}/install"
 SRC_DIR="${SCRIPT_DIR}/src"
 PATCHES_DIR="${SCRIPT_DIR}/patches"
+CONFIG_FILE="${SCRIPT_DIR}/build.cfg"
 
-# Toolchain settings
-SYSROOT="/opt/ti-processor-sdk-linux-adas-j721e-evm-09_02_00_05/linux-devkit/sysroots/aarch64-oe-linux"
-CROSS_PREFIX="/opt/cross-compile/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu"
-CROSS_TRIPLE="aarch64-none-linux-gnu"
+# Load configuration from build.cfg
+load_config() {
+    if [[ -f "${CONFIG_FILE}" ]]; then
+        # Source the config file (only lines with valid variable assignments)
+        while IFS='=' read -r key value; do
+            # Skip comments and empty lines
+            [[ "$key" =~ ^#.*$ ]] && continue
+            [[ -z "$key" ]] && continue
+            # Remove leading/trailing whitespace and quotes
+            key=$(echo "$key" | xargs)
+            value=$(echo "$value" | xargs | sed 's/^["'\'']//;s/["'\'']$//')
+            # Export the variable
+            if [[ -n "$key" && -n "$value" ]]; then
+                export "$key"="$value"
+            fi
+        done < "${CONFIG_FILE}"
+    else
+        echo -e "${RED}[ERROR]${NC} Configuration file not found: ${CONFIG_FILE}"
+        echo "Please create build.cfg with SYSROOT and CROSS_COMPILE_PREFIX settings."
+        exit 1
+    fi
+}
+
+# Load configuration
+load_config
+
+# Apply configuration with defaults
+SYSROOT="${SYSROOT:-/opt/ti-processor-sdk-linux-adas-j721e-evm-09_02_00_05/linux-devkit/sysroots/aarch64-oe-linux}"
+CROSS_PREFIX="${CROSS_COMPILE_PREFIX:-/opt/cross-compile/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu}"
+CROSS_TRIPLE="${CROSS_COMPILE_TRIPLE:-aarch64-none-linux-gnu}"
+CMAKE_BUILD_TYPE="${BUILD_TYPE:-Release}"
+STRIP_BINARY="${STRIP_BINARY:-ON}"
+BUILD_DRIVER="${BUILD_DRIVER:-OFF}"
+BUILD_BPF="${BUILD_BPF:-OFF}"
+BUILD_MODERN_BPF="${BUILD_MODERN_BPF:-OFF}"
+MINIMAL_BUILD="${MINIMAL_BUILD:-ON}"
+
 TOOLCHAIN_FILE="${SCRIPT_DIR}/toolchain-aarch64.cmake"
 
 # Export cross-compiler environment
@@ -42,7 +76,7 @@ export LD="${CROSS_PREFIX}/bin/${CROSS_TRIPLE}-ld"
 export PATH="${CROSS_PREFIX}/bin:${PATH}"
 
 # Number of parallel jobs
-JOBS=$(nproc)
+JOBS="${JOBS:-$(nproc)}"
 
 # Logging functions
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
@@ -156,18 +190,24 @@ configure_falco() {
     mkdir -p "${BUILD_DIR}/falco"
     cd "${BUILD_DIR}/falco"
     
+    # Convert ON/OFF to CMake boolean
+    [[ "${BUILD_DRIVER}" == "ON" ]] && CMAKE_BUILD_DRIVER="ON" || CMAKE_BUILD_DRIVER="OFF"
+    [[ "${BUILD_BPF}" == "ON" ]] && CMAKE_BUILD_BPF="ON" || CMAKE_BUILD_BPF="OFF"
+    [[ "${BUILD_MODERN_BPF}" == "ON" ]] && CMAKE_BUILD_MODERN_BPF="ON" || CMAKE_BUILD_MODERN_BPF="OFF"
+    [[ "${MINIMAL_BUILD}" == "ON" ]] && CMAKE_MINIMAL_BUILD="ON" || CMAKE_MINIMAL_BUILD="OFF"
+    
     cmake "${SRC_DIR}/falco" \
         -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN_FILE}" \
         -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
         -DUSE_BUNDLED_DEPS=ON \
-        -DBUILD_DRIVER=OFF \
-        -DBUILD_BPF=OFF \
-        -DBUILD_LIBSCAP_MODERN_BPF=OFF \
-        -DBUILD_FALCO_MODERN_BPF=OFF \
+        -DBUILD_DRIVER="${CMAKE_BUILD_DRIVER}" \
+        -DBUILD_BPF="${CMAKE_BUILD_BPF}" \
+        -DBUILD_LIBSCAP_MODERN_BPF="${CMAKE_BUILD_MODERN_BPF}" \
+        -DBUILD_FALCO_MODERN_BPF="${CMAKE_BUILD_MODERN_BPF}" \
         -DBUILD_LIBSCAP_GVISOR=OFF \
         -DCREATE_TEST_TARGETS=OFF \
-        -DMINIMAL_BUILD=ON \
+        -DMINIMAL_BUILD="${CMAKE_MINIMAL_BUILD}" \
         -DBUILD_FALCO_UNIT_TESTS=OFF \
         -DBUILD_SHARED_LIBS=OFF \
         2>&1 | tee "${BUILD_DIR}/falco_cmake.log"
@@ -180,15 +220,15 @@ configure_falco() {
     cmake "${SRC_DIR}/falco" \
         -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN_FILE}" \
         -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
         -DUSE_BUNDLED_DEPS=ON \
-        -DBUILD_DRIVER=OFF \
-        -DBUILD_BPF=OFF \
-        -DBUILD_LIBSCAP_MODERN_BPF=OFF \
-        -DBUILD_FALCO_MODERN_BPF=OFF \
+        -DBUILD_DRIVER="${CMAKE_BUILD_DRIVER}" \
+        -DBUILD_BPF="${CMAKE_BUILD_BPF}" \
+        -DBUILD_LIBSCAP_MODERN_BPF="${CMAKE_BUILD_MODERN_BPF}" \
+        -DBUILD_FALCO_MODERN_BPF="${CMAKE_BUILD_MODERN_BPF}" \
         -DBUILD_LIBSCAP_GVISOR=OFF \
         -DCREATE_TEST_TARGETS=OFF \
-        -DMINIMAL_BUILD=ON \
+        -DMINIMAL_BUILD="${CMAKE_MINIMAL_BUILD}" \
         -DBUILD_FALCO_UNIT_TESTS=OFF \
         -DBUILD_SHARED_LIBS=OFF \
         2>&1 | tee -a "${BUILD_DIR}/falco_cmake.log"
@@ -219,9 +259,11 @@ install_falco() {
     cd "${BUILD_DIR}/falco"
     make install
     
-    # Strip the binary
-    log_info "Stripping binary for smaller size..."
-    ${STRIP} -s "${INSTALL_DIR}/bin/falco"
+    # Strip the binary if configured
+    if [[ "${STRIP_BINARY}" == "ON" ]]; then
+        log_info "Stripping binary for smaller size..."
+        ${STRIP} -s "${INSTALL_DIR}/bin/falco"
+    fi
     
     local BINARY_SIZE=$(du -h "${INSTALL_DIR}/bin/falco" | cut -f1)
     log_success "Falco installed to ${INSTALL_DIR}/bin/falco (${BINARY_SIZE})"
@@ -263,10 +305,15 @@ show_help() {
     echo "  fullclean - Clean everything including sources"
     echo "  help      - Show this help"
     echo ""
-    echo "Environment:"
-    echo "  SYSROOT: ${SYSROOT}"
-    echo "  CROSS:   ${CROSS_PREFIX}"
-    echo "  OUTPUT:  ${INSTALL_DIR}/bin/falco"
+    echo "Configuration (from build.cfg):"
+    echo "  SYSROOT:       ${SYSROOT}"
+    echo "  CROSS_PREFIX:  ${CROSS_PREFIX}"
+    echo "  CROSS_TRIPLE:  ${CROSS_TRIPLE}"
+    echo "  BUILD_TYPE:    ${CMAKE_BUILD_TYPE}"
+    echo "  STRIP_BINARY:  ${STRIP_BINARY}"
+    echo "  MINIMAL_BUILD: ${MINIMAL_BUILD}"
+    echo ""
+    echo "Output: ${INSTALL_DIR}/bin/falco"
 }
 
 # Main

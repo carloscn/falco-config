@@ -1,16 +1,38 @@
-# CMake Toolchain File for TI J721E ARM64 Cross-Compilation
-# Target: aarch64-none-linux-gnu
-# Sysroot: TI Processor SDK Linux ADAS J721E
+# CMake Toolchain File for ARM64 Cross-Compilation
+# 
+# Configuration is read from environment variables (set by build.cfg via build_falco.sh)
+# Required environment variables:
+#   - SYSROOT: Path to target sysroot
+#   - CROSS_PREFIX or CROSS_COMPILE_PREFIX: Path to cross-compiler toolchain
+#   - CROSS_TRIPLE or CROSS_COMPILE_TRIPLE: Cross-compiler target triple
 
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
-# Sysroot path
-set(SYSROOT "/opt/ti-processor-sdk-linux-adas-j721e-evm-09_02_00_05/linux-devkit/sysroots/aarch64-oe-linux")
+# Read SYSROOT from environment (required)
+if(DEFINED ENV{SYSROOT})
+    set(SYSROOT "$ENV{SYSROOT}")
+else()
+    message(FATAL_ERROR "SYSROOT environment variable is not set. Please run via build_falco.sh or source env.sh first.")
+endif()
 
-# Cross-compiler paths
-set(CROSS_COMPILE_PREFIX "/opt/cross-compile/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu")
-set(CROSS_COMPILE_TRIPLE "aarch64-none-linux-gnu")
+# Read CROSS_PREFIX from environment (required)
+if(DEFINED ENV{CROSS_PREFIX})
+    set(CROSS_COMPILE_PREFIX "$ENV{CROSS_PREFIX}")
+elseif(DEFINED ENV{CROSS_COMPILE_PREFIX})
+    set(CROSS_COMPILE_PREFIX "$ENV{CROSS_COMPILE_PREFIX}")
+else()
+    message(FATAL_ERROR "CROSS_PREFIX or CROSS_COMPILE_PREFIX environment variable is not set. Please run via build_falco.sh or source env.sh first.")
+endif()
+
+# Read CROSS_TRIPLE from environment (required)
+if(DEFINED ENV{CROSS_TRIPLE})
+    set(CROSS_COMPILE_TRIPLE "$ENV{CROSS_TRIPLE}")
+elseif(DEFINED ENV{CROSS_COMPILE_TRIPLE})
+    set(CROSS_COMPILE_TRIPLE "$ENV{CROSS_COMPILE_TRIPLE}")
+else()
+    message(FATAL_ERROR "CROSS_TRIPLE or CROSS_COMPILE_TRIPLE environment variable is not set. Please run via build_falco.sh or source env.sh first.")
+endif()
 
 # C/C++ compilers
 set(CMAKE_C_COMPILER "${CROSS_COMPILE_PREFIX}/bin/${CROSS_COMPILE_TRIPLE}-gcc")
@@ -55,4 +77,9 @@ link_directories(
 # pkg-config setup
 set(ENV{PKG_CONFIG_PATH} "${SYSROOT}/usr/lib/pkgconfig:${SYSROOT}/usr/share/pkgconfig")
 set(ENV{PKG_CONFIG_SYSROOT_DIR} "${SYSROOT}")
-set(PKG_CONFIG_EXECUTABLE "/usr/bin/pkg-config")
+
+# Print configuration summary
+message(STATUS "Cross-compilation toolchain loaded:")
+message(STATUS "  SYSROOT: ${SYSROOT}")
+message(STATUS "  COMPILER: ${CMAKE_C_COMPILER}")
+message(STATUS "  TRIPLE: ${CROSS_COMPILE_TRIPLE}")
