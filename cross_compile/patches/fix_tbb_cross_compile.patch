@@ -1,0 +1,11 @@
+--- a/cmake/modules/tbb.cmake
++++ b/cmake/modules/tbb.cmake
+@@ -84,6 +84,8 @@ else()
+ 						   -DTBB_OUTPUT_DIR_BASE=lib
+ 						   -DCMAKE_CXX_FLAGS=${TBB_FLAGS}
+ 						   -DCMAKE_POSITION_INDEPENDENT_CODE=${ENABLE_PIC}
++						   -DCMAKE_SYSTEM_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR}
++						   -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
+ 						   -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+ 						   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+ 						   -DEMSCRIPTEN=${TBB_EMSCRIPTEN}

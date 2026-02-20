@@ -1,0 +1,11 @@
+# Build artifacts
+build/
+install/
+src/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
