@@ -1,0 +1,16 @@
+[Unit]
+Description=Falco runtime security (embedded board)
+After=network.target local-fs.target
+
+[Service]
+Type=simple
+# Load falco.ko before starting Falco (required for kmod; avoids PPM_IOCTL_GET_API_VERSION when old module was loaded)
+ExecStartPre=/opt/falco-test/load-falco-ko.sh
+ExecStart=/usr/local/bin/falco -c /etc/falco/falco.yaml
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:/var/log/falco.log
+StandardError=append:/var/log/falco.log
+
+[Install]
+WantedBy=multi-user.target

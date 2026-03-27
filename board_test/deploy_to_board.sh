@@ -92,6 +92,8 @@ deploy_falco() {
     if [[ -d "${INSTALL_DIR}/etc/falco" ]]; then
         "${SSH_CMD[@]}" "${TARGET}" "mkdir -p ${BOARD_FALCO_ETC_DIR}/config.d"
         "${SCP_CMD[@]}" -r "${INSTALL_DIR}/etc/falco/"* "${TARGET}:${BOARD_FALCO_ETC_DIR}/"
+        # kmod-only: cleanup any stale modern_bpf/modern_ebpf configs left by other deployment flows
+        "${SSH_CMD[@]}" "${TARGET}" "rm -f ${BOARD_FALCO_ETC_DIR}/config.d/*modern*bpf*.yaml ${BOARD_FALCO_ETC_DIR}/config.d/*modern*ebpf*.yaml 2>/dev/null || true"
         HAS_AARCH64_CONTAINER=0
         if [[ -f "${INSTALL_DIR}/share/falco/plugins/libcontainer.so" ]]; then
             readelf -d "${INSTALL_DIR}/share/falco/plugins/libcontainer.so" 2>/dev/null | grep -q 'ld-linux-aarch64' && HAS_AARCH64_CONTAINER=1
@@ -99,7 +101,7 @@ deploy_falco() {
         # Always fix container plugin path (install may have build-host path)
         "${SSH_CMD[@]}" "${TARGET}" "sed -i 's|library_path: .*libcontainer\\.so|library_path: ${BOARD_FALCO_SHARE_DIR}/plugins/libcontainer.so|g' ${BOARD_FALCO_ETC_DIR}/falco.yaml 2>/dev/null || true"
         if [[ "$HAS_AARCH64_CONTAINER" -eq 1 ]]; then
-            "${SSH_CMD[@]}" "${TARGET}" "rm -f ${BOARD_FALCO_ETC_DIR}/config.d/falco.container_plugin.yaml ${BOARD_FALCO_ETC_DIR}/config.d/falco.embedded.board.yaml"
+            "${SSH_CMD[@]}" "${TARGET}" "rm -f ${BOARD_FALCO_ETC_DIR}/config.d/falco.container_plugin.yaml ${BOARD_FALCO_ETC_DIR}/config.d/falco.embedded.board.yaml ${BOARD_FALCO_ETC_DIR}/config.d/*modern*bpf*.yaml ${BOARD_FALCO_ETC_DIR}/config.d/*modern*ebpf*.yaml"
             [[ -f "${SCRIPT_DIR}/config/falco.container_plugin.board.yaml" ]] && "${SCP_CMD[@]}" "${SCRIPT_DIR}/config/falco.container_plugin.board.yaml" "${TARGET}:${BOARD_FALCO_ETC_DIR}/config.d/"
             if [[ -f "${REPO_ROOT}/falco-config/falco_rules.local.yaml" ]]; then
                 "${SCP_CMD[@]}" "${REPO_ROOT}/falco-config/falco_rules.local.yaml" "${TARGET}:${BOARD_FALCO_ETC_DIR}/falco_rules.local.yaml"
@@ -112,7 +114,7 @@ deploy_falco() {
             fi
             log_success "Falco config deployed to ${BOARD_FALCO_ETC_DIR} (container plugin + kmod)"
         else
-            "${SSH_CMD[@]}" "${TARGET}" "rm -f ${BOARD_FALCO_ETC_DIR}/config.d/falco.container_plugin.yaml ${BOARD_FALCO_ETC_DIR}/config.d/falco.container_plugin.board.yaml"
+            "${SSH_CMD[@]}" "${TARGET}" "rm -f ${BOARD_FALCO_ETC_DIR}/config.d/falco.container_plugin.yaml ${BOARD_FALCO_ETC_DIR}/config.d/falco.container_plugin.board.yaml ${BOARD_FALCO_ETC_DIR}/config.d/*modern*bpf*.yaml ${BOARD_FALCO_ETC_DIR}/config.d/*modern*ebpf*.yaml"
             [[ -f "${SCRIPT_DIR}/config/falco.embedded.board.yaml" ]] && "${SCP_CMD[@]}" "${SCRIPT_DIR}/config/falco.embedded.board.yaml" "${TARGET}:${BOARD_FALCO_ETC_DIR}/config.d/"
             [[ -f "${SCRIPT_DIR}/config/falco_rules_embedded.yaml" ]] && "${SCP_CMD[@]}" "${SCRIPT_DIR}/config/falco_rules_embedded.yaml" "${TARGET}:${BOARD_FALCO_ETC_DIR}/"
             "${SSH_CMD[@]}" "${TARGET}" "sed -i 's|  - /etc/falco/falco_rules.yaml|  - /etc/falco/falco_rules_embedded.yaml|' ${BOARD_FALCO_ETC_DIR}/falco.yaml 2>/dev/null; sed -i 's|  - /etc/falco/falco_rules.local.yaml|  # - /etc/falco/falco_rules.local.yaml|' ${BOARD_FALCO_ETC_DIR}/falco.yaml 2>/dev/null || true"

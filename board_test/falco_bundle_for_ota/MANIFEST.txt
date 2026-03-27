@@ -1,0 +1,21 @@
+Falco OTA bundle (kmod-only)
+
+Target paths when integrated into rootfs:
+- /usr/local/bin/falco
+- /usr/local/bin/falcoctl (optional)
+- /usr/share/falco/*
+- /usr/share/falco/falco.ko
+- /etc/falco/falco.yaml
+- /etc/falco/falco_rules.yaml
+- /etc/falco/falco_rules.local.yaml
+- /etc/falco/config.d/falco.container_plugin.board.yaml
+- /etc/falco/config.d/falco.json_output.board.yaml
+- /etc/systemd/system/falco.service
+- /opt/falco-test/falco-start.sh
+- /opt/falco-test/load-falco-ko.sh
+
+Post-install on target:
+1) systemctl daemon-reload
+2) systemctl enable falco
+3) systemctl restart falco
+4) journalctl -u falco -n 120 --no-pager

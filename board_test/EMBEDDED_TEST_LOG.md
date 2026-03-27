@@ -1,5 +1,7 @@
 # TDA4VM 嵌入式板端测试记录
 
+> 说明：本文含历史排查记录（包含已废弃的 modern eBPF 尝试）。当前项目以 **kmod-only** 为准，请以 `board_test/FALCO_HEALTHCHECK_GUIDE.md` 与 `board_test/README.md` 的现行流程执行。
+
 板子首次跑 Falco + IDPS 测试的问题与解决方案记录。若内核不支持 Falco 所需特性，会在此说明并建议你重新编译内核。
 
 ---

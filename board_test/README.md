@@ -23,7 +23,7 @@
 部署时会安装 **falco-start.sh** 到板子 `${BOARD_TEST_DIR}/falco-start.sh`（默认 `/opt/falco-test/falco-start.sh`），用于无 systemd 时手动启动 Falco（会尝试自动加载 falco.ko）。
 
 - **配置逻辑**：若 `cross_compile/install` 中存在 aarch64 的 `libcontainer.so`，则部署 container 插件 + 完整规则；否则部署嵌入式配置（无 container 插件、仅主机规则）。部署时会修正板端 `falco.yaml` 中的 `library_path`，避免主机路径。
-- **驱动选择**：**推荐 modern eBPF**（无需 .ko）：在 `cross_compile/build.cfg` 中设 `BUILD_MODERN_BPF=ON` 重新编译，板端使用 `engine.kind: modern_ebpf`（或部署 `config/falco.modern_bpf.board.yaml`）。若构建未含 modern-bpf，则使用 kmod 并部署 falco.ko。
+- **驱动选择**：当前仅使用 `kmod`。请在配置中保持 `engine.kind: kmod`，并部署 `falco.ko`。
 - **falco.ko**：若使用 kmod，需用 `cross_compile` 的 BUILD_KMOD=ON 编出 `install/share/falco/falco.ko`，部署会拷到板子 `/usr/share/falco/`；板端需加载该模块后 Falco 才能采集 syscall。
 
 ```bash
@@ -67,3 +67,19 @@ cd board_test
 ```
 
 若使用密码登录，需安装 `sshpass`：`apt install sshpass`。
+
+## OTA / readonly rootfs 部署
+
+若部署环境为 readonly rootfs（不能 SSH/SCP 在线覆盖），请使用 OTA 流程：
+
+- 部署手册：`board_test/DEPLOYMENT_OTA_READONLY.md`
+- 产物打包：`board_test/prepare_ota_bundle.sh`
+
+示例：
+
+```bash
+cd board_test
+./prepare_ota_bundle.sh --tar
+```
+
+生成 `falco_bundle_for_ota/`（以及可选 `falco_bundle_for_ota.tar.gz`），将其内容集成到固件/OTA 包。

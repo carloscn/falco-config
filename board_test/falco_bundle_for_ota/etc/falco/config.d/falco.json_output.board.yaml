@@ -1,0 +1,12 @@
+# Board: enable JSON alert output for compliance / automated parsing.
+# Alerts are appended to file_output (one JSON object per line).
+# Ensure /var/log/falco exists on board (deploy or systemd creates it).
+
+json_output: true
+json_include_output_property: true
+json_include_output_fields_property: true
+
+file_output:
+  enabled: true
+  keep_alive: false
+  filename: /var/log/falco/falco_events.json

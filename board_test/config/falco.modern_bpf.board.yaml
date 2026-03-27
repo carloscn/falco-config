@@ -1,6 +1,0 @@
-# Board: use modern eBPF driver (Falco 0.32+ recommended).
-# No .ko needed; requires Falco built with BUILD_MODERN_BPF=ON and kernel with BTF (typically 5.8+).
-# Use this when your cross_compile has modern-bpf support; deploy script can select it when BUILD_MODERN_BPF was ON.
-load_plugins: []  # or keep container if libcontainer.so (aarch64) is deployed
-engine:
-  kind: modern_ebpf

@@ -1,14 +1,6 @@
-# TDA4 内核配置：Falco 驱动（kmod / modern eBPF）
+# TDA4 内核配置：Falco 驱动（kmod）
 
-## 现代推荐：优先使用 modern eBPF（Falco 0.32+）
-
-**无需编译 .ko**，性能更好、兼容性强，且不依赖与内核版本严格匹配的模块：
-
-- 在 **falco.yaml** 或 config.d 中设置：`engine.kind: modern_ebpf`
-- 或使用 **falco-driver-loader**：`falco-driver-loader modern-bpf`（若已安装）
-- 要求：交叉编译时打开 **BUILD_MODERN_BPF=ON**（见 `cross_compile/build.cfg`），且板端内核支持 BTF（通常 5.8+ 已具备）
-
-若当前 Falco 构建**未包含** modern_ebpf（如本仓库默认 MINIMAL_BUILD 未开），则需使用 **kmod** 并满足下文内核配置；若已开启 modern_ebpf，建议直接使用 modern eBPF，无需再编 falco.ko。
+当前项目仅使用 `kmod` 模式，本文档仅保留 kmod 相关内核配置与排查步骤。
 
 ---
 
@@ -33,21 +25,13 @@
 
 ---
 
-## 三、若将来用 eBPF / Modern BPF（当前用 kmod 可先不开）
+## 三、当前范围说明
 
-若以后改用 Falco 的 eBPF 或 modern_ebpf 驱动，再考虑：
-
-| 配置项 | 建议值 | 说明 |
-|--------|--------|------|
-| CONFIG_BPF_SYSCALL | =y | eBPF 系统调用 |
-| CONFIG_HAVE_EBPF_JIT | =y | (ARM64 通常有) |
-| CONFIG_DEBUG_INFO_BTF | =y | Modern eBPF CO-RE 需要 BTF |
-
-当前你使用的是 **kmod**，以上 eBPF 相关可不选。
+本项目不使用 modern eBPF；部署与排错均按 `engine.kind: kmod` 执行。
 
 ---
 
-## 四、在 menuconfig 中的大致位置
+## 四、在 menuconfig 中的大致位置（kmod 相关）
 
 - **CONFIG_MODULES**  
   `Enable loadable module support` → `[*] Enable loadable module support`

@@ -1,0 +1,11 @@
+# Board: enable container plugin (aarch64 .so) and use kmod driver.
+# On embedded (no Docker) container.id will be "host"; full falco_rules.yaml can be used.
+load_plugins: [container]
+engine:
+  kind: kmod
+plugins:
+  - name: container
+    library_path: /usr/share/falco/plugins/libcontainer.so
+    init_config:
+      label_max_len: 100
+      with_size: false
